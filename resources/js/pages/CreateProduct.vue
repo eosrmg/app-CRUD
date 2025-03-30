@@ -69,7 +69,7 @@ const submitForm = () => {
     <div class="flex justify-center p-4">
         <div class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-6 w-full max-w-3xl">
 
-            <Link :href="route('dashboard')"class="inline-flex items-center justify-center rounded-md bg-red-400 px-4 py-1 text-sm font-medium shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 w-auto" replace>
+            <Link :href="route('dashboard')" class="inline-flex items-center justify-center rounded-md bg-red-400 px-4 py-1 text-sm font-medium shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 w-auto" replace>
                 
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5m7 7l-7-7 7-7" />
@@ -82,7 +82,7 @@ const submitForm = () => {
 
             <form @submit.prevent="submitForm" class="space-y-4">
                 <!-- Product Name -->
-                <FormField v-slot="{ componentField }" name="name">
+                <FormField name="name">
                     <FormItem>
                         <FormLabel>Product Name:</FormLabel>
                         <FormControl>
@@ -93,7 +93,7 @@ const submitForm = () => {
                 </FormField>
 
                 <!-- Quantity -->
-                <FormField v-slot="{ componentField }" name="qty">
+                <FormField  name="qty">
                     <FormItem>
                         <FormLabel>Quantity:</FormLabel>
                         <FormControl>
@@ -104,7 +104,7 @@ const submitForm = () => {
                 </FormField>
 
                 <!-- Price -->
-                <FormField v-slot="{ componentField }" name="price">
+                <FormField  name="price">
                     <FormItem>
                         <FormLabel>Price:</FormLabel>
                         <FormControl>
@@ -116,7 +116,7 @@ const submitForm = () => {
                 </FormField>
 
                 <!-- Description -->
-                <FormField v-slot="{ componentField }" name="description">
+                <FormField name="description">
                     <FormItem>
                         <FormLabel>Description:</FormLabel>
                         <FormControl>

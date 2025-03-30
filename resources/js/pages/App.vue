@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAppearance } from '@/composables/useAppearance';
 
-const { appearance, updateAppearance, isDark } = useAppearance();
+const { updateAppearance, isDark } = useAppearance();
 
 
 
