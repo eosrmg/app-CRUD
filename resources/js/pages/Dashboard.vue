@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, } from 'vue';
+import axios from 'axios';
+import { ref, watch, onMounted } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Inertia } from '@inertiajs/inertia';
 import Toaster from "@/components/ui/toast/Toaster.vue"
 import { toast } from '@/components/ui/toast/use-toast';
-
-
+import { Skeleton } from '@/components/ui/skeleton';  // Make sure this component exists in your setup
+import AppLayout from '@/layouts/app/AppSidebarLayout.vue';
 
 interface Product {
     id: number;
@@ -27,40 +27,67 @@ interface PageProps {
 const { props } = usePage<PageProps>();
 const products = ref<Product[]>(props.products || []);
 
+const loading = ref(true);  // New loading state
+
+const fetchProducts = async () => {
+    loading.value = true;  // Start loading
+    try {
+        
+        const response = await axios.get('/products');
+        products.value = response.data;  // Update the products list
+    } catch (error) {
+        console.error('Error fetching products:', error);
+    } finally {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        loading.value = false;  // Stop loading
+    }
+};
+
+
+onMounted(() => {
+    fetchProducts();  // Fetch products when component is mounted
+});
 
 const showToast = (message: string) => {
     toast({
         title: 'Product Status',
         description: message,
-        duration: 4000,
+        duration: 3000,
         class: 'border border-green-500 font-lite text-md p-4 rounded',
     });
-    setTimeout(() => {
-        Inertia.replace(window.location.href); // Prevents adding this action to the browser's history
-    }, 4000); // Delay the page reload to allow the toast to stay visible
+
 };
 
 if (props.flash?.success) {
-    const alertDelete = props.flash.success as string;
-    showToast(alertDelete);
+    const alert = props.flash.success as string;
+    showToast(alert);
 }
 
 
-const deleteProduct = (id: number) => {
+const deleteProduct = async (id: number) => {
     if (confirm('Are you sure you want to delete this product?')) {
-        Inertia.delete(route('createproduct.destroy', { product: id }), {
-            replace: true, // Prevents adding this action to the browser's history
-            preserveScroll: true, // Prevents scrolling to top after deletion
-           
-        });
+        try {
+            // Make the API request to delete the product
+            await axios.delete(`/products/${id}`);
+
+            // Remove the deleted product from the `products` array
+            products.value = products.value.filter(product => product.id !== id);
+         
+
+            // Optionally, show a toast or success message
+            showToast('Product deleted successfully!');
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            showToast('Error deleting product.');
+        }
     }
 };
-
 
 
 </script>
 
 <template>
+    <AppLayout>
     <Toaster />
 
 
@@ -69,25 +96,11 @@ const deleteProduct = (id: number) => {
     <div class="flex justify-center p-4">
         <div class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-6 w-full max-w-1xl">
             <h2 class="text-lg font-semibold text-center">Products</h2>
-
-
-            <Link :href="route('app')"class="inline-flex items-center justify-center rounded-md bg-red-400 px-4 py-1 text-sm font-medium shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 w-auto" replace>
-                
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5m7 7l-7-7 7-7" />
-                </svg>
-            </Link>
-
-            <div class="flex justify-end">
-                <Link :href="route('createproduct')"
-                    class="inline-flex items-center justify-center rounded-md bg-orange-500 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
-                Add New Product
-                </Link>
-            </div>
-
             
             <div class="mt-2">
-                <Table>
+
+    <!-- Display the table only when data is fully loaded -->
+    <Table>
                     <TableHeader>
                         <TableRow>
                             <TableHead>ID</TableHead>
@@ -98,7 +111,7 @@ const deleteProduct = (id: number) => {
                             <TableHead>Actions</TableHead>
                         </TableRow>
                     </TableHeader>
-                    <TableBody>
+                    <TableBody  v-if="!loading">
                         <TableRow v-for="product in products" :key="product.id">
                             <TableCell>{{ product.id }}</TableCell>
                             <TableCell>{{ product.name }}</TableCell>
@@ -118,9 +131,18 @@ const deleteProduct = (id: number) => {
                         </TableRow>
                     </TableBody>
                 </Table>
+
+                         <!-- Skeleton Loader when loading -->
+        <div v-if="loading">
+            <div v-for="n in 5" :key="n" class="mb-4">
+                <Skeleton class="h-7 w-full mb-4" />
+            
+ 
+            </div>
+        </div>
             </div>
 
         </div>
     </div>
-
+</AppLayout>
 </template>

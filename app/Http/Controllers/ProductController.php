@@ -47,9 +47,18 @@ class ProductController extends Controller
         return redirect()->route('dashboard')->with('success', 'Product updated successfully.');
     }
 
-    public function destroy(Product $product){
-        $product->delete();
-        return redirect()->route('dashboard')->with('success', 'Product deleted successfully.');
-        }
+  public function destroy(Product $product)
+{
+    $product->delete();
+    return response()->json(['message' => 'Product deleted successfully']);
+}
+
+public function watchchange()
+{
+    $products = Product::all();  // Fetch all products
+    return response()->json($products);  // Return products as JSON response
+}
+
+
    
 }

@@ -14,7 +14,10 @@ Route::post('/createproduct', [ProductController::class, 'store'])->name('create
 Route::get('/createproduct/{product}', [ProductController::class, 'edit'])->name('createproduct.edit');
 Route::put('/createproduct/{product}', [ProductController::class, 'update'])->name('createproduct.update');
 
-Route::delete('/createproduct{product}', [ProductController::class, 'destroy'])->name('createproduct.destroy');
+// routes/api.php
+Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+Route::get('/products', [ProductController::class, 'watchchange']);
+
 
 
 

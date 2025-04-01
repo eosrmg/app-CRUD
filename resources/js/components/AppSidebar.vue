@@ -1,57 +1,110 @@
 <script setup lang="ts">
-import NavFooter from '@/components/NavFooter.vue';
-import NavMain from '@/components/NavMain.vue';
-import NavUser from '@/components/NavUser.vue';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
-import AppLogo from './AppLogo.vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import { ZiggyVue } from 'ziggy-js';
+import { computed, } from 'vue';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
-    },
-];
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  type SidebarProps,
+  SidebarRail,
+} from '@/components/ui/sidebar'
+import {
+  AudioWaveform,
+  Blocks,
+  Calendar,
+  Command,
+  Home,
+  Inbox,
+  MessageCircleQuestion,
+  Search,
+  Settings2,
+  Sparkles,
+  Trash2,
+} from 'lucide-vue-next'
 
-const footerNavItems: NavItem[] = [
+import LogoField from './LogoField.vue';
+
+// Define your props with defaults
+const props = withDefaults(defineProps<SidebarProps>(), {
+  collapsible: 'icon' // Default value for the 'collapsible' prop
+
+})
+
+const isCollapsed = computed(() => props.collapsible === 'icon')
+
+
+const currentRoute = computed(() => {
+    return route().current() || null;
+});
+
+
+const data = {
+
+  teams: [
     {
-        title: 'Github Repo',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: Folder,
+      name: 'CRUD APP',
+      logo: Sparkles,
+      url: "/"
+      
     },
+  ],
+
+  navMain: [
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits',
-        icon: BookOpen,
+      
+      title: 'Products Data Base',
+      items: [
+        { title: 'Products', routeName: 'dashboard', Icon: Command, },
+        { title: 'Create Product', routeName: 'createproduct', Icon: Blocks },
+      ],
     },
-];
+
+
+  ],
+}
+
+
+
 </script>
-
 <template>
-    <Sidebar collapsible="icon" variant="inset">
-        <SidebarHeader>
-            <SidebarMenu>
-                <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" as-child>
-                        <Link :href="route('dashboard')">
-                            <AppLogo />
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
-        </SidebarHeader>
-
-        <SidebarContent>
-            <NavMain :items="mainNavItems" />
-        </SidebarContent>
-
-        <SidebarFooter>
-            <NavFooter :items="footerNavItems" />
-            <NavUser />
-        </SidebarFooter>
-    </Sidebar>
-    <slot />
+  <Sidebar v-bind="props" >
+    <SidebarHeader>
+      <LogoField :teams="data.teams" />
+    </SidebarHeader>
+    <SidebarContent>
+      <SidebarGroup v-for="item in data.navMain" :key="item.title">
+        <SidebarGroupLabel v-if="isCollapsed">{{ item.title }}</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem v-for="childItem in item.items" :key="childItem.title">
+              <SidebarMenuButton as-child>
+                <Link
+                  :href="route(childItem.routeName)"
+                  class="flex items-center gap-2"
+                  :class="{ 'bg-blue-500 text-white': currentRoute === childItem.routeName }"
+                  
+                >
+                  <!-- Render Icon if it's provided -->
+                  <component :is="childItem.Icon" class="w-5 h-5" />
+                  <!-- Render title only when not collapsed -->
+                  <span v-if="isCollapsed">{{ childItem.title }}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </SidebarContent>
+    <SidebarRail />
+  </Sidebar>
 </template>
+
+
